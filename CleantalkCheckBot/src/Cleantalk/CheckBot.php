@@ -1,8 +1,6 @@
 <?php
 
-use Cleantalk\Cleantalk;
-use Cleantalk\CleantalkRequest;
-use Cleantalk\CleantalkResponse;
+namespace Cleantalk;
 
 class CheckBot
 {

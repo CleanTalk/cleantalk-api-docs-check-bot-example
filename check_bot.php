@@ -1,11 +1,6 @@
 <?php
 
-require_once(dirname(__FILE__) . '/lib/Cleantalk.php');
-require_once(dirname(__FILE__) . '/lib/CleantalkRequest.php');
-require_once(dirname(__FILE__) . '/lib/CleantalkResponse.php');
-require_once(dirname(__FILE__) . '/lib/CleantalkHelper.php');
-require_once(dirname(__FILE__) . '/CheckBot/CheckBot.php');
-require_once(dirname(__FILE__) . '/CheckBot/CheckBotConfig.php');
+require_once 'CleantalkCheckBot/src/autoloader.php';
 
 if ( empty($_POST) ) {
     return;
@@ -28,7 +23,7 @@ function handle_search_form($post)
     }
 
     // set new CheckBotConfig
-    $config = new CheckBotConfig(
+    $config = new \Cleantalk\CheckBotConfig(
         array(
             /*
              * Your CleanTalk access key. This example get the key from the system environment, you can use your onw way or insert key string directly.
@@ -65,7 +60,7 @@ function handle_search_form($post)
             'do_log' => true
         )
     );
-    $bot_checker = new CheckBot($post, $config);
+    $bot_checker = new \Cleantalk\CheckBot($post, $config);
 
     //call visitor check
     $is_bot = $bot_checker->check()->getVerdict();

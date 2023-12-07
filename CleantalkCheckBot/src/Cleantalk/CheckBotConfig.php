@@ -1,5 +1,7 @@
 <?php
 
+namespace Cleantalk;
+
 class CheckBotConfig
 {
     private $obligatory_properties = array('access_key',
