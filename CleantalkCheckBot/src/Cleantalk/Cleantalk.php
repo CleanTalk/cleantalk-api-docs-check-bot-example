@@ -276,7 +276,7 @@ class Cleantalk {
 	 * @param $url
 	 * @param int $server_timeout
 	 *
-	 * @return boolean|\CleantalkResponse
+	 * @return boolean|CleantalkResponse
 	 */
     private function sendRequest($data, $url, $server_timeout = 3)
 	{

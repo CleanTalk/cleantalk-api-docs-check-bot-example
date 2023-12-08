@@ -23,18 +23,32 @@ class CheckBotConfig
     public $ip_frequency_1hour = 15;
     public $ip_frequency_10min = 5;
 
-    public function __construct($params)
+    public function __construct()
     {
-        if ( !$this->isObligatoryParamsPresented($params) ) {
-            throw new \Exception('CheckBot config: not enough params set.');
-        }
-        foreach ( $params as $param_name => $param ) {
-            if ( property_exists(static::class, $param_name) ) {
-                $type = gettype($this->$param_name);
-                $this->$param_name = $param;
-                settype($this->$param_name, $type);
+    }
+
+    public function loadConfig()
+    {
+        try {
+            $ini_config_parsed = static::parseIniConf();
+
+            if ( !$this->isObligatoryParamsPresented($ini_config_parsed) ) {
+                throw new \Exception('CheckBot config: not enough params set. Load defaults.');
             }
+
+            foreach ( $ini_config_parsed as $param_name => $param ) {
+                if ( property_exists(static::class, $param_name) ) {
+                    $type = gettype($this->$param_name);
+                    $this->$param_name = $param;
+                    settype($this->$param_name, $type);
+                }
+            }
+        } catch (\Exception $e) {
+            return array('success' => false, 'msg' => $e->getMessage());
         }
+
+        return array('success' => true, 'msg' => 'custom config loaded.' . var_export($this, true));
+
     }
 
     public function __get($name)
@@ -48,5 +62,15 @@ class CheckBotConfig
             count(array_intersect($this->obligatory_properties, array_keys($params))) === count(
                 $this->obligatory_properties
             );
+    }
+
+    private function parseIniConf()
+    {
+        $path = __DIR__  . DIRECTORY_SEPARATOR . 'checkbot.ini';
+        $config_array = parse_ini_file($path);
+        if (false === $config_array) {
+            throw new \Exception('Config parse error. Load defaults.');
+        }
+        return $config_array;
     }
 }

@@ -30,10 +30,14 @@ class CheckBot
      */
     private $block_message = '';
 
-    public function __construct(array $post_data, CheckBotConfig $config)
+    private $request_success = true;
+
+    public function __construct(array $post_data)
     {
         $this->post = $post_data;
-        $this->config = $config;
+        $this->config = new CheckBotConfig();
+        $load_config_result = $this->config->loadConfig();
+        $this->writeLog($load_config_result['msg']);
     }
 
     /**
@@ -68,21 +72,26 @@ class CheckBot
         $ct_request->auth_key = $this->config->access_key;
 
         if ( empty($ct_request->auth_key) ) {
-            $this->writeLog('CleanTalk check_bot: access key is empty. Check skipped.');
-            return false;
+            throw new \Exception('access key is empty. Check skipped.');
         }
 
         if ( empty($ct_request->event_token) ) {
-            $this->writeLog('CleanTalk check_bot: event token not found. Check skipped.');
-            return false;
+            throw new \Exception('event token not found. Check skipped.');
         }
 
         $ct = new Cleantalk();
         $ct->server_url = $ct_request::CLEANTALK_API_URL;
         $ct_result = $ct->checkBot($ct_request);
-        $this->writeLog('CleanTalk check_bot result: ' . var_export($ct_result, true));
+        $this->writeLog('raw result: ' . var_export($ct_result, true));
 
         return $ct_result;
+    }
+
+    private function validateApiResponse(CleantalkResponse $api_call_response)
+    {
+        if (!empty($api_call_response->errstr)) {
+            throw new \Exception('failed. Check method call parameters. Error: ' . $api_call_response->errstr);
+        }
     }
 
     public function getVerdict()
@@ -101,43 +110,48 @@ class CheckBot
      */
     public function check()
     {
-        //get event token
-        $this->setEventToken($this->getEventToken());
-        //call CleanTalk API
-        $check_bot_result = $this->checkBotApiCall();
+        $process_result_log = 'request skipped.';
+        try {
+            //get event token
+            $this->setEventToken($this->getEventToken());
+            //call CleanTalk API
+            $api_call_response = $this->checkBotApiCall();
+            //validate response
+            $this->validateApiResponse($api_call_response);
 
-        //handle response
-        if ( false === $check_bot_result ) {
+        } catch (\Exception $e) {
+            $this->request_success = false;
             $this->verdict = false;
-            return $this;
+            $process_result_log = $e->getMessage();
         }
 
-        if (!empty($check_bot_result->errstr)) {
-            $this->writeLog('CleanTalk check_bot failed. Check method call parameters. Error: ' . $check_bot_result->errstr);
-            $this->verdict = false;
-            return $this;
-        }
+        if ($this->request_success) {
+            $this->block_message = !empty($this->config->common_block_message)
+                ? $this->config->common_block_message
+                : $api_call_response->comment;
 
-        $this->block_message = !empty($this->config->common_block_message)
-            ? $this->config->common_block_message
-            : $check_bot_result->comment;
+            //block if CleanTalk decision is enough for you
+            if ( $this->config->trust_cleantalk_decision ) {
+                $this->verdict = isset($api_call_response->allow) && $api_call_response->allow != 1;
+                $process_result_log = $this->verdict === true
+                    ? 'visitor blocked on CleanTalk decision.'
+                    : 'visitor passed on CleanTalk decision.';
+            }
 
-        //block if CleanTalk decision is enough for you
-        if ( $this->config->trust_cleantalk_decision ) {
-            $this->verdict = isset($check_bot_result->allow) && $check_bot_result->allow != 1;
-            $this->writeLog('CleanTalk check_bot: visitor blocked on CleanTalk decision.');
-            return $this;
-        }
+            //run custom checks for response properties
+            foreach ( $this->config->custom_checks_properties as $property ) {
+                if ( $api_call_response->$property > $this->config->$property ) {
+                    $this->verdict = true;
+                    $process_result_log = 'visitor blocked by custom setting: ' . $property . ' > ' . $this->config->$property;
+                    break;
+                }
+            }
 
-        //run custom checks for response properties
-        foreach ( $this->config->custom_checks_properties as $property ) {
-            if ( $check_bot_result->$property > $this->config->$property ) {
-                $this->verdict = true;
-                $this->writeLog('CleanTalk check_bot: visitor blocked by custom setting: ' . $property . ' > ' . $this->config->$property);
-                return $this;
+            if ($this->verdict === false) {
+                $process_result_log = 'all checks passed';
             }
         }
-
+        $this->writeLog($process_result_log);
         return $this;
     }
 
@@ -148,8 +162,11 @@ class CheckBot
      */
     private function writeLog($msg)
     {
+        $log_msg_tmpl = 'CleanTalk CheckBot: ';
+
         if ( $this->config->do_log && is_string($msg) && !empty($msg)) {
-            error_log($msg);
+            $token_suffix = $this->event_token ? ', event_token:' . $this->event_token : '';
+            error_log($log_msg_tmpl . $msg . $token_suffix);
         }
     }
 }
