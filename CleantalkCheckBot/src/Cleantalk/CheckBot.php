@@ -110,15 +110,24 @@ class CheckBot
      */
     public function check()
     {
-        $process_result_log = 'request skipped.';
-        try {
-            //get event token
-            $this->setEventToken($this->getEventToken());
-            //call CleanTalk API
-            $api_call_response = $this->checkBotApiCall();
-            //validate response
-            $this->validateApiResponse($api_call_response);
+        //Get event token.
+        $this->setEventToken($this->getEventToken());
 
+        //If not provided most probably that the visitor has no JS, it is bot-like behavior.
+        if (empty($this->event_token)) {
+            $this->verdict = true;
+            $this->request_success = false;
+            $this->writeLog('no event_token found, probably visitor has no JavaScript');
+            return $this;
+        }
+
+        $process_result_log = 'request skipped.';
+
+        try {
+            //Call CleanTalk API
+            $api_call_response = $this->checkBotApiCall();
+            //Validate response
+            $this->validateApiResponse($api_call_response);
         } catch (\Exception $e) {
             $this->request_success = false;
             $this->verdict = false;
