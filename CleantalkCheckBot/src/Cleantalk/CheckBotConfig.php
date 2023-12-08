@@ -30,13 +30,14 @@ class CheckBotConfig
     public function loadConfig()
     {
         try {
-            $ini_config_parsed = static::parseIniConf();
+            require_once 'config.php';
+            global $check_bot_config;
 
-            if ( !$this->isObligatoryParamsPresented($ini_config_parsed) ) {
+            if (empty($check_bot_config) || !$this->isObligatoryParamsPresented($check_bot_config) ) {
                 throw new \Exception('CheckBot config: not enough params set. Load defaults.');
             }
 
-            foreach ( $ini_config_parsed as $param_name => $param ) {
+            foreach ( $check_bot_config as $param_name => $param ) {
                 if ( property_exists(static::class, $param_name) ) {
                     $type = gettype($this->$param_name);
                     $this->$param_name = $param;
@@ -62,15 +63,5 @@ class CheckBotConfig
             count(array_intersect($this->obligatory_properties, array_keys($params))) === count(
                 $this->obligatory_properties
             );
-    }
-
-    private function parseIniConf()
-    {
-        $path = __DIR__  . DIRECTORY_SEPARATOR . 'checkbot.ini';
-        $config_array = parse_ini_file($path);
-        if (false === $config_array) {
-            throw new \Exception('Config parse error. Load defaults.');
-        }
-        return $config_array;
     }
 }

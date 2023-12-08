@@ -7,9 +7,10 @@ Add the CleanTalk Bot-detector JS library wrapper to the page HTML you want to p
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://moderate.cleantalk.org/ct-bot-detector-wrapper.js"></script>
+    </meta>
 </head>
 ```
-2. Fill the [checkbot.ini](src%2FCleantalk%2Fcheckbot.ini). Obligatory properties are:
+2. Fill the [config.php](src%2FCleantalk%2Fconfig.php). Obligatory properties are:
    * access_key - your CleanTalk access key.
    * trust_cleantalk_decision - set this to true if you do not want to set custom checking settings
 
@@ -37,16 +38,20 @@ if ( $is_bot ) {
 ```
 ## Config setup explanation
 
-### Default checkbot.ini
-```text
-access_key = "your_access_key"
-trust_cleantalk_decision = true
-common_block_message = 'Visitor blocked. It seems to be a bot.'
-bot_expectation = 0.5
-ip_frequency_24hour = 50
-ip_frequency_1hour = 15
-ip_frequency_10min = 5
-do_log = false
+### Default config.php
+```php
+<?php
+global $check_bot_config;
+$check_bot_config = array(
+    'access_key' => "",
+    'trust_cleantalk_decision' => true,
+    'common_block_message' => 'Visitor blocked. It seems to be a bot.',
+    'bot_expectation' => 0.5,
+    'ip_frequency_24hour' => 50,
+    'ip_frequency_1hour' => 15,
+    'ip_frequency_10min' => 5,
+    'do_log' => false
+);
 ```
 
 ### Common params
