@@ -16,6 +16,7 @@ class CheckBotConfig
 
     public $access_key = '';
     public $trust_cleantalk_decision = true;
+    public $block_no_js_visitors = true;
     public $common_block_message = 'Visitor blocked. It seems to be a bot.';
     public $do_log = true;
     public $bot_expectation = 0.5;

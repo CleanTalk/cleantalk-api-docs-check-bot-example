@@ -45,6 +45,7 @@ global $check_bot_config;
 $check_bot_config = array(
     'access_key' => "",
     'trust_cleantalk_decision' => true,
+    'block_no_js_visitors' => true,
     'common_block_message' => 'Visitor blocked. It seems to be a bot.',
     'bot_expectation' => 0.5,
     'ip_frequency_24hour' => 50,
@@ -60,6 +61,8 @@ $check_bot_config = array(
 Your CleanTalk access key.
 - <code> trust_cleantalk_decision (bool)</code>
 Set this to true if you do not want to set custom checking settings. Applicable in the most cases. 
+- <code> block_no_js_visitors (bool)</code>
+Set this to true if you want to block any visitor that could not execute JS script (bot-like behavior). Applicable in the most cases.
 - <code> common_block_message (string) </code>
 A message for blocked visitor.
 - <code> do_log (bool) </code>

@@ -28,7 +28,7 @@ class CheckBot
      * The message for blocked visitor.
      * @var string
      */
-    private $block_message = '';
+    private $ct_comment = '';
 
     private $request_success = true;
 
@@ -75,10 +75,6 @@ class CheckBot
             throw new \Exception('access key is empty. Check skipped.');
         }
 
-        if ( empty($ct_request->event_token) ) {
-            throw new \Exception('event token not found. Check skipped.');
-        }
-
         $ct = new Cleantalk();
         $ct->server_url = $ct_request::CLEANTALK_API_URL;
         $ct_result = $ct->checkBot($ct_request);
@@ -101,7 +97,11 @@ class CheckBot
 
     public function getBlockMessage()
     {
-        return $this->block_message;
+        return !empty($this->config->common_block_message)
+            ? $this->config->common_block_message
+            : !empty($this->ct_comment)
+                ? $this->ct_comment
+                : '';
     }
 
     /**
@@ -114,53 +114,52 @@ class CheckBot
         $this->setEventToken($this->getEventToken());
 
         //If not provided most probably that the visitor has no JS, it is bot-like behavior.
+        //If the setting allow_no_js_visitors is set to false, the visitor will be blocked
         if (empty($this->event_token)) {
-            $this->verdict = true;
-            $this->request_success = false;
+            $this->verdict = $this->config->block_no_js_visitors;
             $this->writeLog('no event_token found, probably visitor has no JavaScript');
-            return $this;
+            if ($this->verdict) {
+                $this->writeLog('visitor is blocked. No JS execution found.');
+            }
         }
-
-        $process_result_log = 'request skipped.';
 
         try {
             //Call CleanTalk API
             $api_call_response = $this->checkBotApiCall();
             //Validate response
             $this->validateApiResponse($api_call_response);
+            $this->ct_comment = $api_call_response->comment;
         } catch (\Exception $e) {
             $this->request_success = false;
             $this->verdict = false;
-            $process_result_log = $e->getMessage();
+            $this->writeLog($e->getMessage());
         }
 
-        if ($this->request_success) {
-            $this->block_message = !empty($this->config->common_block_message)
-                ? $this->config->common_block_message
-                : $api_call_response->comment;
-
+        if ($this->request_success && !$this->verdict) {
             //block if CleanTalk decision is enough for you
             if ( $this->config->trust_cleantalk_decision ) {
                 $this->verdict = isset($api_call_response->allow) && $api_call_response->allow != 1;
-                $process_result_log = $this->verdict === true
+                $ct_verdict_log = $this->verdict === true
                     ? 'visitor blocked on CleanTalk decision.'
                     : 'visitor passed on CleanTalk decision.';
-            }
-
-            //run custom checks for response properties
-            foreach ( $this->config->custom_checks_properties as $property ) {
-                if ( $api_call_response->$property > $this->config->$property ) {
-                    $this->verdict = true;
-                    $process_result_log = 'visitor blocked by custom setting: ' . $property . ' > ' . $this->config->$property;
-                    break;
+                $this->writeLog($ct_verdict_log);
+            } else {
+                //run custom checks for response properties
+                foreach ( $this->config->custom_checks_properties as $property ) {
+                    if ( $api_call_response->$property > $this->config->$property ) {
+                        $this->verdict = true;
+                        $custom_verdict_log = 'visitor blocked by custom setting: ' . $property . ' > ' . $this->config->$property;
+                        $this->writeLog($custom_verdict_log);
+                        break;
+                    }
                 }
             }
-
-            if ($this->verdict === false) {
-                $process_result_log = 'all checks passed';
-            }
         }
-        $this->writeLog($process_result_log);
+
+        if ($this->verdict === false) {
+            $this->writeLog('all checks passed');
+        }
+
         return $this;
     }
 
