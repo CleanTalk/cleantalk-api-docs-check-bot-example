@@ -11,7 +11,7 @@ Add the CleanTalk Bot-detector JS library wrapper to the page HTML you want to p
 </head>
 ```
 2. Fill the [config.php](src%2FCleantalk%2Fconfig.php). Obligatory properties are:
-   * access_key - your CleanTalk access key.
+   * access_key - your CleanTalk access key. If you do not have a key, [register the new account](https://cleantalk.org/register) or [restore access](https://cleantalk.org/help/access-to-dashboard) to an existing account to get it.
    * trust_cleantalk_decision - set this to true if you do not want to set custom checking settings
 
 3. To start use CheckBot library, include "yourpath/src/autoloader.php" into the code you want to perform the check.
