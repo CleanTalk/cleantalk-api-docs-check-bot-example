@@ -9,7 +9,7 @@ spl_autoload_register(function ($class) {
     }
 
     $class = str_replace('\\', '/', $class);
-    $path = dirname(__FILE__) . '/' . $class . '.php';
+    $path = dirname(__FILE__) . 'autoloader.php/' . $class . '.php';
     if ( is_readable($path) ) {
         require_once $path;
     }
