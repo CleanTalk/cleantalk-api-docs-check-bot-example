@@ -57,26 +57,26 @@ $check_bot_config = array(
 
 ### Common params
 
-- <code> access_key (string) </code>
+- `access_key (string)`
 Your CleanTalk access key.
-- <code> trust_cleantalk_decision (bool)</code>
+- `trust_cleantalk_decision (bool)`
 Set this to true if you do not want to set custom checking settings. Applicable in the most cases. 
-- <code> block_no_js_visitors (bool)</code>
+- `block_no_js_visitors (bool)`
 Set this to true if you want to block any visitor that could not execute JS script (bot-like behavior). Applicable in the most cases.
-- <code> common_block_message (string) </code>
+- `common_block_message (string)`
 A message for blocked visitor.
-- <code> do_log (bool) </code>
+- `do_log (bool)`
 Set to true if you want to see the log, false otherwise.
 
 ### Custom params
-<i>Params below affected only if the property "trust_cleantalk_decision is set to false.</i>
+<em>Params below affected only if the property "trust_cleantalk_decision is set to false.</em>
 
-- <code> bot_expectation </code>
+- `bot_expectation`
 Set maximum bot probability percentage. For example, 0.5 is 50%. If CleanTalk API responsed with bot_expectation 0.53 - visitor will be blocked, if 0.47 - passed.
 
-- <code> ip_frequency_24hour </code>
-- <code> ip_frequency_1hour </code>
-- <code> ip_frequency_10min </code>
+- `ip_frequency_24hour`
+- `ip_frequency_1hour`
+- `ip_frequency_10min`
 
 Custom checks - set how to block a visitor whose IP address detected by CleanTalk service in the period. For example, if CleanTalk response contains ip_frequency_24hour = 1000, and the config property ip_frequency_24hour = 500, visitor will be blocked.
 
