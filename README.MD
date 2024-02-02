@@ -1,6 +1,6 @@
 This guideline will help you to use CleanTalk check_bot API method via the special library that can be downloaded from this repo.
 ## Usage
-1. Download the lib and unpack it to your filesystem. Look at the suggested files structure with unpacked data highlighted:
+1. Download the lib and unpack it to your website filesystem. Look at the suggested files structure with unpacked data highlighted:
 <br><br>![files_structure.png](files_structure.png)
    <br><br>
 2. Add the CleanTalk Bot-detector JS library wrapper `https://moderate.cleantalk.org/ct-bot-detector-wrapper.js` as `<script>`tag to the HTML page contains the form you want to protect.
