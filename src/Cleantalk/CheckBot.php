@@ -55,6 +55,10 @@ class CheckBot
         return '';
     }
 
+    /**
+     * @param string $event_token
+     * @return void
+     */
     private function setEventToken($event_token)
     {
         $this->event_token = $event_token;
@@ -83,6 +87,11 @@ class CheckBot
         return $ct_result;
     }
 
+    /**
+     * @param CleantalkResponse $api_call_response
+     * @return void
+     * @throws \Exception
+     */
     private function validateApiResponse(CleantalkResponse $api_call_response)
     {
         if (!empty($api_call_response->errstr)) {
@@ -90,18 +99,24 @@ class CheckBot
         }
     }
 
+    /**
+     * @return bool
+     */
     public function getVerdict()
     {
         return $this->verdict;
     }
 
+    /**
+     * @return string
+     */
     public function getBlockMessage()
     {
-        return !empty($this->config->common_block_message)
+        return ( !empty($this->config->common_block_message)
             ? $this->config->common_block_message
-            : !empty($this->ct_comment)
-                ? $this->ct_comment
-                : '';
+            : !empty($this->ct_comment) )
+            ? $this->ct_comment
+            : '';
     }
 
     /**

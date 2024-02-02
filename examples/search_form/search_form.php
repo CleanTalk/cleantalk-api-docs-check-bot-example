@@ -19,14 +19,15 @@ function handle_search_form($post)
         return;
     }
 
+    //create a new CheckBot object
     $bot_checker = new \Cleantalk\CheckBot($post);
 
-    //call visitor check
+    //call visitor check and make decision
     $is_bot = $bot_checker->check()->getVerdict();
     if ( $is_bot ) {
         die ($bot_checker->getBlockMessage());
     }
 
-    //implement your search form handler here replacing echo
+    //implement your further search form handlers here replacing echo
     echo('You searched for this: ' . $post['search_field']);
 }
