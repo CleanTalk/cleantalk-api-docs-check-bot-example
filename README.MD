@@ -12,7 +12,7 @@ This guideline will help you to use CleanTalk check_bot API method via the speci
 src/FCleantalk/config.php
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;Obligatory properties are:
-   * access_key - your CleanTalk Anti-Spam access key. If you do not have a key, [register the new account](https://cleantalk.org/register) or [restore access](https://cleantalk.org/help/access-to-dashboard) to an existing account to get it.
+   * access_key - your CleanTalk Anti-Spam access key. If you do not have a key, [register the new account](https://cleantalk.org/register?utm_source=github&utm_medium=article&utm_campaign=instructions&utm_content=link&utm_term=create+account) or [restore access](https://cleantalk.org/help/access-to-dashboard) to an existing account to get it.
    * trust_cleantalk_decision - set this to true if you do not want to set custom checking settings
 
 4. To start use CheckBot library, include "yourpath/src/autoloader.php" into the top of codepage where you want to perform the check.
